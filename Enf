@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NeoClinic — Control Prenatal & Neonatal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Pequeños ajustes visuales */
+    .card { @apply bg-white rounded-2xl shadow p-5; }
+    .muted { color: #6b7280; }
+    .small { font-size: .9rem; }
+    pre { white-space: pre-wrap; word-break: break-word; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-sky-50 via-indigo-50 to-purple-50 min-h-screen p-6">
+  <div class="max-w-7xl mx-auto">
+    <header class="flex items-center gap-4 mb-6">
+      <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-white font-bold text-xl">NC</div>
+      <div>
+        <h1 class="text-2xl font-bold text-gray-800">NeoClinic — Control Prenatal & Neonatal</h1>
+        <p class="text-sm muted">Sistema interactivo (HTML + JS). Módulos: gestación, somatometría, signos vitales, escalas, laboratorio, farmacología, dispositivos y NANDA/NIC/NOC.</p>
+      </div>
+      <div class="ml-auto text-right small muted">Versión: 1.0 — Pre-cargado</div>
+    </header>
+
+    <main class="grid lg:grid-cols-3 gap-6">
+      <!-- Left column: navegación y resumen -->
+      <section class="card lg:col-span-1">
+        <h2 class="text-lg font-semibold mb-3">Panel</h2>
+        <nav class="space-y-2">
+          <button data-panel="gestacion" class="panel-btn w-full text-left py-2 px-3 rounded hover:bg-sky-50">Semanas y Somatometría</button>
+          <button data-panel="signos" class="panel-btn w-full text-left py-2 px-3 rounded hover:bg-sky-50">Signos Vitales</button>
+          <button data-panel="escalas" class="panel-btn w-full text-left py-2 px-3 rounded hover:bg-sky-50">Escalas Clínicas</button>
+          <button data-panel="laboratorio" class="panel-btn w-full text-left py-2 px-3 rounded hover:bg-sky-50">Laboratorio</button>
+          <button data-panel="farmaco" class="panel-btn w-full text-left py-2 px-3 rounded hover:bg-sky-50">Farmacología</button>
+          <button data-panel="dispositivos" class="panel-btn w-full text-left py-2 px-3 rounded hover:bg-sky-50">Dispositivos Médicos</button>
+          <button data-panel="nanda" class="panel-btn w-full text-left py-2 px-3 rounded hover:bg-sky-50">NANDA → NIC → NOC</button>
+        </nav>
+
+        <hr class="my-4" />
+        <div id="resumen" class="text-sm small muted space-y-2">
+          <div><strong>Semanas:</strong> <span id="res-semanas">—</span></div>
+          <div><strong>Peso (ref):</strong> <span id="res-peso">—</span></div>
+          <div><strong>APGAR:</strong> <span id="res-apgar">—</span></div>
+          <div><strong>Silverman:</strong> <span id="res-silverman">—</span></div>
+          <div><strong>Último LAB:</strong> <span id="res-lab">—</span></div>
+        </div>
+
+        <hr class="my-4" />
+        <div class="small muted">
+          <p class="font-semibold">Guardar / Cargar</p>
+          <div class="flex gap-2 mt-2">
+            <button id="btn-save" class="px-3 py-2 bg-indigo-600 text-white rounded">Guardar local</button>
+            <button id="btn-load" class="px-3 py-2 bg-gray-200 rounded">Cargar</button>
+            <button id="btn-clear" class="px-3 py-2 bg-red-100 text-red-700 rounded">Borrar</button>
+          </div>
+          <p class="text-xs mt-3">Los datos se guardan en tu navegador (localStorage).</p>
+        </div>
+      </section>
+
+      <!-- Middle column: contenido principal -->
+      <section class="lg:col-span-2 space-y-6">
+        <!-- GESTACION & SOMATOMETRIA -->
+        <div id="panel-gestacion" class="card panel hidden">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-xl font-semibold">Semanas de Gestación & Somatometría</h2>
+            <div class="muted small">Rango: 8 - 40 SDG</div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold mb-1">Semanas de gestación</label>
+              <input id="input-semanas" type="number" min="8" max="40" value="28" class="w-full p-3 border rounded-lg" />
+              <div class="mt-3 small muted">Trimestre: <span id="label-trimestre">—</span></div>
+              <button id="btn-consultar-semanas" class="mt-3 px-4 py-2 bg-pink-500 text-white rounded">Consultar referencia</button>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold mb-1">Peso del feto (referencia)</label>
+              <div class="grid grid-cols-3 gap-2">
+                <div class="p-3 bg-pink-50 rounded-lg text-center">
+                  <div class="muted small">Longitud</div>
+                  <div id="ref-longitud" class="font-bold text-lg">37.5 cm</div>
+                </div>
+                <div class="p-3 bg-purple-50 rounded-lg text-center">
+                  <div class="muted small">Peso</div>
+                  <div id="ref-peso" class="font-bold text-lg">1000 g</div>
+                </div>
+                <div class="p-3 bg-blue-50 rounded-lg text-center">
+                  <div class="muted small">CC</div>
+                  <div id="ref-cc" class="font-bold text-lg">25.5 cm</div>
+                </div>
+              </div>
+
+              <div class="mt-4">
+                <label class="block text-sm font-semibold mb-1">Ingresar peso real del neonato (kg)</label>
+                <input id="input-peso-kg" type="number" min="0.5" max="5" step="0.01" value="1.0" class="w-48 p-2 border rounded" />
+              </div>
+            </div>
+          </div>
+
+          <hr class="my-4" />
+
+          <div class="grid md:grid-cols-3 gap-4">
+            <div class="p-3 bg-white rounded-lg border">
+              <div class="small muted">DBP</div>
+              <div id="ref-dbp" class="font-semibold">7.0 cm</div>
+            </div>
+            <div class="p-3 bg-white rounded-lg border">
+              <div class="small muted">CA</div>
+              <div id="ref-ca" class="font-semibold">23.0 cm</div>
+            </div>
+            <div class="p-3 bg-white rounded-lg border">
+              <div class="small muted">LF</div>
+              <div id="ref-lf" class="font-semibold">5.3 cm</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SIGNOS VITALES -->
+        <div id="panel-signos" class="card panel hidden">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">Signos Vitales</h2>
+            <div class="small muted">Valores de referencia según edad gestacional</div>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label class="block text-sm font-semibold mb-1">Frecuencia cardíaca (lpm)</label>
+              <input id="input-fc" type="number" value="140" class="w-40 p-2 border rounded" />
+              <div class="small muted mt-2">Rango esperado: <span id="range-fc">130-160</span></div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold mb-1">Frecuencia respiratoria (rpm)</label>
+              <input id="input-fr" type="number" value="40" class="w-40 p-2 border rounded" />
+              <div class="small muted mt-2">Rango esperado: <span id="range-fr">30-60</span></div>
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold mb-1">Temperatura (°C)</label>
+              <input id="input-temp" type="number" step="0.1" value="36.8" class="w-40 p-2 border rounded" />
+            </div>
+
+            <div>
+              <label class="block text-sm font-semibold mb-1">Saturación SpO₂ (%)</label>
+              <input id="input-spo2" type="number" value="95" class="w-40 p-2 border rounded" />
+            </div>
+          </div>
+
+          <div class="mt-4 flex gap-3">
+            <button id="btn-eval-signos" class="px-4 py-2 bg-indigo-600 text-white rounded">Evaluar</button>
+            <div id="resultado-signos" class="ml-2 font-semibold"></div>
+          </div>
+        </div>
+
+        <!-- ESCALAS -->
+        <div id="panel-escalas" class="card panel hidden">
+          <h2 class="text-xl font-semibold mb-3">Escalas Clínicas</h2>
+
+          <!-- APGAR -->
+          <div class="mb-4 p-4 border rounded-lg">
+            <h3 class="font-semibold">APGAR</h3>
+            <div class="grid md:grid-cols-5 gap-3 mt-3">
+              <div>
+                <label class="block small muted mb-1">Frecuencia cardíaca</label>
+                <select id="apgar-fc" class="p-2 border rounded w-full">
+                  <option value="0">0 - Ausente</option>
+                  <option value="1">1 - &lt;100</option>
+                  <option value="2" selected>2 - &gt;100</option>
+                </select>
+              </div>
+              <div>
+                <label class="block small muted mb-1">Respiración</label>
+                <select id="apgar-resp" class="p-2 border rounded w-full">
+                  <option value="0">0 - Ausente</option>
+                  <option value="1">1 - Débil/irregular</option>
+                  <option value="2" selected>2 - Llanto vigoroso</option>
+                </select>
+              </div>
+              <div>
+                <label class="block small muted mb-1">Tono</label>
+                <select id="apgar-tono" class="p-2 border rounded w-full">
+                  <option value="0">0 - Flácido</option>
+                  <option value="1">1 - Flexión leve</option>
+                  <option value="2" selected>2 - Activo</option>
+                </select>
+              </div>
+              <div>
+                <label class="block small muted mb-1">Reflejos</label>
+                <select id="apgar-ref" class="p-2 border rounded w-full">
+                  <option value="0">0 - Sin respuesta</option>
+                  <option value="1">1 - Mueca</option>
+                  <option value="2" selected>2 - Tos/Llanto</option>
+                </select>
+              </div>
+              <div>
+                <label class="block small muted mb-1">Color</label>
+                <select id="apgar-color" class="p-2 border rounded w-full">
+                  <option value="0">0 - Azul/pálido</option>
+                  <option value="1">1 - Cuerpo rosado, extremidades azules</option>
+                  <option value="2" selected>2 - Completamente rosado</option>
+                </select>
+              </div>
+            </div>
+            <div class="mt-3">
+              <button id="btn-apgar" class="px-3 py-2 bg-emerald-600 text-white rounded">Calcular APGAR</button>
+              <span id="out-apgar" class="ml-3 font-semibold"></span>
+            </div>
+          </div>
+
+          <!-- SILVERMAN -->
+          <div class="mb-4 p-4 border rounded-lg">
+            <h3 class="font-semibold">Silverman-Andersen</h3>
+            <div class="grid md:grid-cols-3 gap-3 mt-3">
+              <div>
+                <label class="block small muted mb-1">Aleteo nasal</label>
+                <select id="sv-aleteo" class="p-2 border rounded w-full"><option>0</option><option>1</option><option>2</option></select>
+              </div>
+              <div>
+                <label class="block small muted mb-1">Quejido espiratorio</label>
+                <select id="sv-quejido" class="p-2 border rounded w-full"><option>0</option><option>1</option><option>2</option></select>
+              </div>
+              <div>
+                <label class="block small muted mb-1">Retracción xifoidea</label>
+                <select id="sv-retr" class="p-2 border rounded w-full"><option>0</option><option>1</option><option>2</option></select>
+              </div>
+              <div>
+                <label class="block small muted mb-1">Tiraje</label>
+                <select id="sv-tiraje" class="p-2 border rounded w-full"><option>0</option><option>1</option><option>2</option></select>
+              </div>
+              <div>
+                <label class="block small muted mb-1">Disociación toracoabdominal</label>
+                <select id="sv-disoc" class="p-2 border rounded w-full"><option>0</option><option>1</option><option>2</option></select>
+              </div>
+            </div>
+            <div class="mt-3">
+              <button id="btn-silverman" class="px-3 py-2 bg-amber-600 text-white rounded">Calcular Silverman</button>
+              <span id="out-silverman" class="ml-3 font-semibold"></span>
+            </div>
+          </div>
+
+          <!-- EVA -->
+          <div class="mb-4 p-4 border rounded-lg">
+            <h3 class="font-semibold">EVA (Dolor)</h3>
+            <input id="eva-range" type="range" min="0" max="10" value="0" class="w-full" />
+            <div class="mt-2">Puntaje: <span id="out-eva">0</span>/10 — <span id="eva-text">Sin dolor</span></div>
+          </div>
+
+          <!-- BRADEN Q -->
+          <div class="mb-4 p-4 border rounded-lg">
+            <h3 class="font-semibold">Braden Q (riesgo UPP)</h3>
+            <div class="grid md:grid-cols-3 gap-2">
+              <div>
+                <label class="small muted">Percepción sensorial</label>
+                <select id="braden-ps" class="p-2 border rounded w-full"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+              </div>
+              <div>
+                <label class="small muted">Humedad</label>
+                <select id="braden-h" class="p-2 border rounded w-full"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+              </div>
+              <div>
+                <label class="small muted">Actividad</label>
+                <select id="braden-a" class="p-2 border rounded w-full"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+              </div>
+              <div>
+                <label class="small muted">Movilidad</label>
+                <select id="braden-m" class="p-2 border rounded w-full"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+              </div>
+              <div>
+                <label class="small muted">Nutrición</label>
+                <select id="braden-n" class="p-2 border rounded w-full"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+              </div>
+              <div>
+                <label class="small muted">Fricción/rozamiento</label>
+                <select id="braden-f" class="p-2 border rounded w-full"><option>1</option><option>2</option><option>3</option><option>4</option></select>
+              </div>
+            </div>
+            <div class="mt-3">
+              <button id="btn-braden" class="px-3 py-2 bg-emerald-600 text-white rounded">Calcular Braden Q</button>
+              <span id="out-braden" class="ml-3 font-semibold"></span>
+            </div>
+          </div>
+
+          <!-- MORSE -->
+          <div class="mb-4 p-4 border rounded-lg">
+            <h3 class="font-semibold">Morse (riesgo caídas)</h3>
+            <div class="grid md:grid-cols-3 gap-2">
+              <div>
+                <label class="small muted">Historia de caídas</label>
+                <select id="morse-hc" class="p-2 border rounded w-full"><option value="0">No (0)</option><option value="25">Sí (25)</option></select>
+              </div>
+              <div>
+                <label class="small muted">Diagnóstico secundario</label>
+                <select id="morse-ds" class="p-2 border rounded w-full"><option value="0">No (0)</option><option value="15">Sí (15)</option></select>
+              </div>
+              <div>
+                <label class="small muted">Ayuda para deambular</label>
+                <select id="morse-ad" class="p-2 border rounded w-full"><option value="0">Independiente (0)</option><option value="20">Ayuda (20)</option></select>
+              </div>
+              <div>
+                <label class="small muted">Terapia IV</label>
+                <select id="morse-tiv" class="p-2 border rounded w-full"><option value="0">No (0)</option><option value="20">Sí (20)</option></select>
+              </div>
+              <div>
+                <label class="small muted">Marcha / postura</label>
+                <select id="morse-mp" class="p-2 border rounded w-full"><option value="0">Normal (0)</option><option value="10">Alterada (10)</option></select>
+              </div>
+              <div>
+                <label class="small muted">Estado mental</label>
+                <select id="morse-em" class="p-2 border rounded w-full"><option value="0">Orientado (0)</option><option value="15">Confuso (15)</option></select>
+              </div>
+            </div>
+            <div class="mt-3">
+              <button id="btn-morse" class="px-3 py-2 bg-amber-600 text-white rounded">Calcular Morse</button>
+              <span id="out-morse" class="ml-3 font-semibold"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- LABORATORIO -->
+        <div id="panel-laboratorio" class="card panel hidden">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">Laboratorio</h2>
+            <div class="small muted">Ingresa resultados y compara con rangos</div>
+          </div>
+
+          <div class="grid md:grid-cols-3 gap-3 mt-4">
+            <div>
+              <label class="small muted">Hemoglobina (g/dL)</label>
+              <input id="lab-hb" type="number" step="0.1" class="p-2 border rounded w-full" />
+            </div>
+            <div>
+              <label class="small muted">Hematocrito (%)</label>
+              <input id="lab-ht" type="number" step="0.1" class="p-2 border rounded w-full" />
+            </div>
+            <div>
+              <label class="small muted">Leucocitos (x10^9/L)</label>
+              <input id="lab-leu" type="number" step="0.1" class="p-2 border rounded w-full" />
+            </div>
+
+            <div>
+              <label class="small muted">Plaquetas (x10^9/L)</label>
+              <input id="lab-pla" type="number" step="1" class="p-2 border rounded w-full" />
+            </div>
+            <div>
+              <label class="small muted">Glucosa (mg/dL)</label>
+              <input id="lab-glu" type="number" step="1" class="p-2 border rounded w-full" />
+            </div>
+            <div>
+              <label class="small muted">Bilirrubina total (mg/dL)</label>
+              <input id="lab-bil" type="number" step="0.1" class="p-2 border rounded w-full" />
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <button id="btn-eval-lab" class="px-3 py-2 bg-indigo-600 text-white rounded">Evaluar laboratorio</button>
+            <div id="out-lab" class="mt-3"></div>
+          </div>
+        </div>
+
+        <!-- FARMACO -->
+        <div id="panel-farmaco" class="card panel hidden">
+          <div class="flex items-center justify-between">
+            <h2 class="text-xl font-semibold">Farmacología neonatal</h2>
+            <div class="small muted">Base pre-cargada de fármacos y cálculo de dosis</div>
+          </div>
+
+          <div class="mt-3 grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="block small muted mb-1">Seleccionar fármaco</label>
+              <select id="select-farmaco" class="p-2 border rounded w-full"></select>
+
+              <div class="mt-3">
+                <label class="small muted">Peso (kg)</label>
+                <input id="farm-peso" type="number" step="0.01" value="1.0" class="p-2 border rounded w-36" />
+              </div>
+
+              <div class="mt-3 grid grid-cols-2 gap-2">
+                <button id="btn-calcular-dosis" class="px-3 py-2 bg-emerald-600 text-white rounded">Calcular dosis</button>
+                <button id="btn-alerta-dosis" class="px-3 py-2 bg-red-100 text-red-700 rounded">Ver alerta si excede</button>
+              </div>
+            </div>
+
+            <div class="p-3 border rounded">
+    subir archivo 

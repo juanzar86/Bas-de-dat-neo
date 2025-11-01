@@ -1,3 +1,3 @@
 # Bas-de-dat-neo
 Consulta
-subie desde el celular 
+subir desde el celular
