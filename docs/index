@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Ecosistema Educativo Integrado</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 2em;
+      background-color: #f4f8f9;
+      color: #333;
+    }
+    header {
+      background-color: #e0f7fa;
+      padding: 1.5em;
+      border-radius: 8px;
+      text-align: center;
+    }
+    nav {
+      margin-top: 2em;
+      background-color: #ffffff;
+      padding: 1em;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+    }
+    nav ul {
+      list-style: none;
+      padding: 0;
+    }
+    nav li {
+      margin: 1em 0;
+    }
+    a {
+      text-decoration: none;
+      color: #00796b;
+      font-weight: bold;
+    }
+    footer {
+      margin-top: 3em;
+      font-size: 0.9em;
+      text-align: center;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌱 Ecosistema Educativo Integrado</h1>
+    <p>
+      Desarrollado por <strong>Juan Zavaleta</strong><br>
+      Maestría en Enfermería, Universidad Veracruzana<br>
+      Mentoría: <strong>Dra. Sabina Galindo</strong>
+    </p>
+    <img src="assets/portada.png" alt="Portada institucional" style="max-width:100%; border-radius:8px;">
+  </header>
+
+  <nav>
+    <h2>🔗 Navegación académica</h2>
+    <ul>
+      <li><a href="docs/index.md">📖 Guía para consulta y cuidado</a></li>
+      <li><a href="integracion.html">📌 Diagrama de integración</a></li>
+      <li><a href="README.html">🛠 Documentación técnica</a></li>
+      <li><a href="colaboracion.html">🤝 Política de colaboración</a></li>
+    </ul>
+  </nav>
+
+  <footer>
+    <p>Este ecosistema está en desarrollo continuo. Se agradece la retroalimentación colaborativa.</p>
+    <p><em>Última actualización: noviembre 2025</em></p>
+  </footer>
+</body>
+</html>
